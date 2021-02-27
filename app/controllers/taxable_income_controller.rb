@@ -15,7 +15,7 @@ class TaxableIncomeController < ApplicationController
                 {limit: 0,      percentage: 0.0}]
       taxable_income = TaxableIncome.new(limits)
       render json: {
-        taxes_owed: taxable_income.calculate_total_amount(amount),
+        tax_owed: taxable_income.calculate_total_amount(amount),
         status: 200
       }
     end

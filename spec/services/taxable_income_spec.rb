@@ -4,11 +4,8 @@ describe "TaxableIncome" do
   describe 'calculate_total_amount' do
     describe 'basic functionality' do
       before :each do
-        limits = [{limit: 50000,  percentage: 0.3},
-                  {limit: 10000,  percentage: 0.1},
-                  {limit: 20000,  percentage: 0.2},
-                  {limit: 0,      percentage: 0.0}]
-        @taxable_income = TaxableIncome.new(limits)
+        csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/basic_functionality_test.csv"
+        @taxable_income = TaxableIncome.new(csv_path)
       end
 
       describe '#calculate_total_amount' do
@@ -31,36 +28,38 @@ describe "TaxableIncome" do
           expect(@taxable_income.calculate_total_amount(65000)).to eq(11500.00)
           expect(@taxable_income.calculate_total_amount(100000)).to eq(22000.00)
         end
+
+        it "can handle weird zeros" do
+          csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/weird_zeros_test.csv"
+          taxable_income = TaxableIncome.new(csv_path)
+          expect(taxable_income.calculate_total_amount(5000)).to eq(0.0)
+          expect(taxable_income.calculate_total_amount(15000)).to eq(500.00)
+          expect(taxable_income.calculate_total_amount(25000)).to eq(1000.00)
+          expect(taxable_income.calculate_total_amount(35000)).to eq(1000.00)
+          expect(taxable_income.calculate_total_amount(45000)).to eq(1000.00)
+          expect(taxable_income.calculate_total_amount(65000)).to eq(5500.00)
+        end
+
+        it 'can handle out of order arrays' do
+          csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/out_of_order_test.csv"
+          taxable_income = TaxableIncome.new(csv_path)
+          expect(taxable_income.calculate_total_amount(10001)).to eq(0.10)
+          expect(taxable_income.calculate_total_amount(15000)).to eq(500.00)
+          expect(taxable_income.calculate_total_amount(20000)).to eq(1000.00)
+          expect(taxable_income.calculate_total_amount(35000)).to eq(4000.00)
+          expect(taxable_income.calculate_total_amount(50000)).to eq(7000.00)
+          expect(taxable_income.calculate_total_amount(100010)).to eq(22005.00)
+        end
       end
     end
 
-    describe 'extended functionality' do
+    describe 'can handle extended range' do
       it 'test_50k_to_100k' do
-        # skip "extends bracket range"
-        limits = [{limit: 100000, percentage: 0.5},
-                  {limit: 50000,  percentage: 0.3},
-                  {limit: 20000,  percentage: 0.2},
-                  {limit: 10000,  percentage: 0.1},
-                  {limit: 0,      percentage: 0.0}]
-        taxable_income = TaxableIncome.new(limits)
+        csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/extended_range_test.csv"
+        taxable_income = TaxableIncome.new(csv_path)
         expect(22005.00).to eq(taxable_income.calculate_total_amount(100010))
       end
-
-      it 'test_limits_array_out_of_order' do
-        limits = [{limit: 0,      percentage: 0.0},
-                  {limit: 100000, percentage: 0.5},
-                  {limit: 20000,  percentage: 0.2},
-                  {limit: 10000,  percentage: 0.1},
-                  {limit: 50000,  percentage: 0.3}]
-        taxable_income = TaxableIncome.new(limits)
-        expect(taxable_income.calculate_total_amount(10001)).to eq(0.10)
-        expect(taxable_income.calculate_total_amount(15000)).to eq(500.00)
-        expect(taxable_income.calculate_total_amount(20000)).to eq(1000.00)
-        expect(taxable_income.calculate_total_amount(35000)).to eq(4000.00)
-        expect(taxable_income.calculate_total_amount(50000)).to eq(7000.00)
-        expect(taxable_income.calculate_total_amount(100010)).to eq(22005.00)
-      end
     end
-    
+
   end
 end

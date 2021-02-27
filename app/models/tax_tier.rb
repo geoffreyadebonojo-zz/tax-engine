@@ -1,2 +1,4 @@
 class TaxTier < ApplicationRecord
+
+
 end

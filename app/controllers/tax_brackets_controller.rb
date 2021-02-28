@@ -1,39 +1,112 @@
 class TaxBracketsController < ApplicationController
 
+  before_action :find_user
+
   def show
-    uuid = params[:uuid]
-    user = User.find_by(uuid: uuid)
     render json: {
-      tax_brackets: user.tax_brackets
+      tax_brackets: @user.tax_brackets
     }
   end
 
   def new
-    uuid = params[:uuid]
-    user = User.find_by(uuid: uuid)
+    new_bracket_limit = params[:lowest_amount]
 
-    lowest_limit = params[:lowest_amount].to_i
-    percentage =   params[:percentage].to_f/100
-    new_tier = { lowest_amount: lowest_limit, percentage: percentage }
-
-    existing_limits = user.tax_brackets.map{ |hsh| hsh[:lowest_amount] }
-
-    if existing_limits.include?(lowest_limit)
+    if bracket_already_exists?(new_bracket_limit)
       render json: {
-        message: "Another tax bracket is already using #{lowest_limit} as lowest limit",
-        existing_tax_brackets: user.tax_brackets
+        message: "Another tax bracket is already using #{new_bracket_limit} as lowest limit",
+        existing_tax_brackets: brackets_with_index
+      }, status: 403
+
+    elsif insufficient_create_params?(params)
+      render json: {
+        message: "Missing information to create new bracket; please include a lowest_amount and a percentage",
+        existing_tax_brackets: brackets_with_index
       }, status: 403
 
     else
-      user.tax_brackets << new_tier
-      user.tax_brackets.sort_by! { |hsh| hsh[:lowest_amount] }.reverse!
-      if user.save
-        render json: { user: user }
+      create_new_bracket(params)
+    end
+  end
+
+  def update
+    new_bracket_limit = params[:lowest_amount]
+
+    if insufficient_update_params?(params)
+      render json: {
+        message: "Missing information to update a tax bracket; please include a lowest_amount, a percentage and the id of the bracket to update",
+        existing_tax_brackets: brackets_with_index
+      }, status: 403
+    else
+      update_existing_bracket(params)
+    end
+  end
+
+  private
+
+  def insufficient_create_params?(params)
+    params[:lowest_amount].nil? || params[:percentage].nil?
+  end
+
+  def insufficient_update_params?(params)
+    params[:lowest_amount].nil? || params[:percentage].nil? || params[:bracket_id].nil?
+  end
+
+  def bracket_already_exists?(new_bracket_lowest_amount)
+    existing_brackets = @user.tax_brackets.map do |hsh|
+      hsh[:lowest_amount]
+    end
+    existing_brackets.include?(new_bracket_lowest_amount.to_i)
+  end
+
+  def brackets_with_index
+    @user.tax_brackets.each_with_index.map do |hsh, index|
+      hsh.merge(id: index)
+    end
+  end
+
+  def new_tax_tier(tier_params)
+    lowest_amount = tier_params[:lowest_amount].to_i
+    percentage =   tier_params[:percentage].to_f/100
+    new_tier = { lowest_amount: lowest_amount, percentage: percentage }
+  end
+
+  def create_new_bracket(tier_params)
+    new_tier = new_tax_tier(tier_params)
+    @user.tax_brackets << new_tier
+    @user.tax_brackets.sort_by! { |hsh| hsh[:lowest_amount] }.reverse!
+    if @user.save
+      render json: { newest_bracket: new_tier, user: @user }
+    else
+      render json: { message: "Couldn't save" }, status: 403
+    end
+  end
+
+  def update_existing_bracket(params)
+    bracket_index = params[:bracket_id].to_i
+    new_bracket_lowest_amount = params[:lowest_amount].to_i
+    target_bracket_amount = @user.tax_brackets[bracket_index][:lowest_amount]
+
+    if bracket_already_exists?(new_bracket_lowest_amount) && target_bracket_amount != new_bracket_lowest_amount
+      render json: {
+        message: "Another tax bracket is already using #{new_bracket_lowest_amount} as lowest limit. If you wish to update that bracket use the bracket_id.",
+        existing_tax_brackets: brackets_with_index
+      }, status: 403
+
+    else
+      new_tier = new_tax_tier(params)
+      @user.tax_brackets[bracket_index] = new_tier
+      @user.tax_brackets.sort_by! { |hsh| hsh[:lowest_amount] }.reverse!
+      if @user.save
+        render json: { user: @user }, status: 200
       else
-        render json: { message: "Couldn't save" }, status: 403
+        render json: { newest_bracket: new_tier, message: "Couldn't save" }, status: 403
       end
     end
 
+  end
+
+  def find_user
+    @user = User.find_by(uuid: params[:uuid])
   end
 
 end

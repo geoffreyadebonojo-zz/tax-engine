@@ -41,6 +41,17 @@ class TaxBracketsController < ApplicationController
     end
   end
 
+  def destroy
+    if insufficient_delete_params?(params)
+      render json: {
+        message: "Can't find that tax bracket in the list",
+        existing_tax_brackets: brackets_with_index
+      }, status: 403
+    else
+      delete_existing_bracket(params)
+    end
+  end
+
   private
 
   def insufficient_create_params?(params)
@@ -49,6 +60,10 @@ class TaxBracketsController < ApplicationController
 
   def insufficient_update_params?(params)
     params[:lowest_amount].nil? || params[:percentage].nil? || params[:bracket_id].nil?
+  end
+
+  def insufficient_delete_params?(params)
+    params[:bracket_id].nil?
   end
 
   def bracket_already_exists?(new_bracket_lowest_amount)
@@ -99,10 +114,22 @@ class TaxBracketsController < ApplicationController
       if @user.save
         render json: { user: @user }, status: 200
       else
-        render json: { newest_bracket: new_tier, message: "Couldn't save" }, status: 403
+        render json: { message: "Couldn't save", newest_bracket: new_tier }, status: 403
       end
     end
+  end
 
+  def delete_existing_bracket(params)
+    bracket_index = params[:bracket_id].to_i
+    target_bracket = @user.tax_brackets[bracket_index]
+
+    if target_bracket.present?
+      @user.tax_brackets.delete_at(bracket_index)
+      @user.save
+      render json: { deleted_bracket: target_bracket, message: "Tax bracket successfully deleted", user: @user }, status: 200
+    else
+      render json: { message: "Couldn't find a tax bracket with id #{bracket_index}" }, status: 403
+    end
   end
 
   def find_user

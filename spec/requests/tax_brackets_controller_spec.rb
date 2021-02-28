@@ -11,6 +11,7 @@ describe "TaxBracketsController", type: :request do
       expect(data[:tax_brackets]).to eq([{"lowest_amount"=>10000, "percentage"=>10}, {"lowest_amount"=>20000, "percentage"=>20}])
     end
   end
+
   describe "CREATE" do
     it "needs a lowest_amount" do
       user = User.create!(tax_brackets: [])
@@ -112,6 +113,45 @@ describe "TaxBracketsController", type: :request do
       user = User.first
       expect(user.tax_brackets).to eq([{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
       expect(data[:message]).to eq("Another tax bracket is already using 20000 as lowest limit. If you wish to update that bracket use the bracket_id.")
+    end
+  end
+
+  describe "DELETE" do
+    it "needs proper params" do
+      user = User.create!(tax_brackets: [{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
+
+      delete "/tax_bracket", params: {uuid: user.uuid}
+
+      data = JSON.parse(response.body).symbolize_keys
+
+      user = User.first
+      expect(user.tax_brackets.count).to eq(2)
+      expect(data[:message]).to          eq("Can't find that tax bracket in the list")
+    end
+
+    it "won't delete a non-existing bracket" do
+      user = User.create!(tax_brackets: [{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
+
+      delete "/tax_bracket", params: {uuid: user.uuid, bracket_id: 3}
+
+      data = JSON.parse(response.body).symbolize_keys
+
+      user = User.first
+      expect(user.tax_brackets.count).to eq(2)
+      expect(data[:message]).to          eq("Couldn't find a tax bracket with id 3")
+    end
+
+    it "deletes targeted bracket" do
+      user = User.create!(tax_brackets: [{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
+
+      delete "/tax_bracket", params: {uuid: user.uuid, bracket_id: 1}
+
+      data = JSON.parse(response.body).symbolize_keys
+
+      user = User.first
+      expect(user.tax_brackets.count).to eq(1)
+      expect(user.tax_brackets).to       eq([{:lowest_amount=>10000, :percentage=>10}])
+      expect(data[:message]).to          eq("Tax bracket successfully deleted")
     end
   end
 end

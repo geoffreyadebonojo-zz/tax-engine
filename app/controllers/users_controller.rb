@@ -12,7 +12,8 @@ class UsersController < ApplicationController
   def new
     user = User.create!()
     render json: {
-      user: user, message: "You have successfully created a user."
+      user: user,
+      message: "You have successfully created a user."
     }, status: 201
   end
 

@@ -1,5 +1,21 @@
 # README
 
+### Setup
+
+```
+git clone https://github.com/geoffreyadebonojo/tax-engine.git
+cd tax-engine
+rake db:{create,migrate,seed}
+```
+### Run tests
+```
+bundle exec rspec
+```
+and view coverage
+```
+open coverage/index.html
+```
+
 ### Endpoints
 ##### USERS
 

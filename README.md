@@ -209,3 +209,12 @@ Requires an `amount`. Won't accept words, or any number below 1.
   "uuid": "9b44abb039da2fec8bbb"
 }
 ```
+
+#### POINTS FOR DISCUSSION
+##### Tax brackets as hashes in a column
+If we have multiple millions of users, each with 50+ tax brackets, it seemed more efficient to use a hash as a column, seeing as how there's only two values.
+
+##### Using UUID instead of user namespace
+
+##### Inclusion of CSVs
+I was thinking that whatever front-end makes use of this API could give users the option to upload a CSV with the tax brackets they intend to use. The CSV would be uploaded to an S3 bucket, which our API would then pull from to get the CSV data. Then we put that into our database. Just an added bit of flexibility.

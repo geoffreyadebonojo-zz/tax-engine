@@ -113,7 +113,7 @@ class TaxBracketsController < ApplicationController
       @user.tax_brackets.sort_by! { |hsh| hsh[:lowest_amount] }.reverse!
       if @user.save
         render json: {
-          newest_bracket: new_tier,
+          updated_bracket: new_tier,
           existing_tax_brackets: brackets_with_index
         }, status: 200
       else

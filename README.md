@@ -2,6 +2,23 @@
 
 ### Endpoints
 ##### USERS
+
+###### To create a new user with a random uuid
+
+`POST /user/new`
+```
+{
+  "user": {
+    "id": 2,
+    "uuid": "9b44abb039da2fec8bbb",
+    "tax_brackets": [],
+    "created_at": "2021-02-28T22:01:19.000Z",
+    "updated_at": "2021-02-28T22:01:19.000Z"
+  },
+  "message": "You have successfully created a user."
+}
+```
+
 ###### To get data on existing user
 
 `GET /user/uuid=9b44abb039da2fec8bbb`
@@ -31,22 +48,6 @@
     "created_at": "2021-02-28T21:57:29.000Z",
     "updated_at": "2021-02-28T21:57:29.000Z"
   }
-}
-```
-
-###### To create a new user with a random uuid
-
-`POST /user/new`
-```
-{
-  "user": {
-    "id": 2,
-    "uuid": "b0c27795c8e44cd51932",
-    "tax_brackets": [],
-    "created_at": "2021-02-28T22:01:19.000Z",
-    "updated_at": "2021-02-28T22:01:19.000Z"
-  },
-  "message": "You have successfully created a user."
 }
 ```
 
@@ -120,7 +121,7 @@ Uses the index value of the tax bracket to update `lowest_amount` and tax `perce
 `POST /tax_bracket/update?uuid=9b44abb039da2fec8bbb&lowest_amount=30000&percentage=40&bracket_id=0`
 ```
 {
-  "newest_bracket": {
+  "updated_bracket": {
     "lowest_amount": 50000,
     "percentage": 0.4
   },

@@ -21,7 +21,7 @@
 
 ###### To get data on existing user
 
-`GET /user/uuid=9b44abb039da2fec8bbb`
+`GET /user?uuid=9b44abb039da2fec8bbb`
 ```
 {
   "user": {
@@ -151,7 +151,7 @@ Uses the index value of the tax bracket to update `lowest_amount` and tax `perce
 ```
 
 ##### To delete an existing tax bracket
-`DELETE /tax_bracket`
+`DELETE /tax_bracket?bracket_id=0`
 ```
 {
   "deleted_bracket": {

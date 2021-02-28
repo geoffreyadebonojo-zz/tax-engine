@@ -9,8 +9,8 @@ describe "TaxableIncomeController", type: :request do
         get "/taxable_income", params: {amount: "11000"}
 
         data = JSON.parse(response.body).symbolize_keys
-        expect(data[:tax_owed]).to eq(100)
-        expect(response.status).to eq(200)
+        expect(data[:message]).to include("No valid uuid was given; default tax brackets are being used. To calculate tax information for your organization please create an account or enter a valid uuid.")
+        expect(response.status).to eq(400)
       end
 
       it "rejects zero" do

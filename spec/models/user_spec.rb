@@ -8,7 +8,7 @@ RSpec.describe User, type: :model do
       csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/basic_functionality_test.csv"
       @tax_brackets = CSVParser.execute(csv_path)
     end
-    
+
     it "allows custom uuid" do
       user = User.create!(uuid: @custom_uuid, tax_brackets: @tax_brackets)
       expect(user.uuid).to eq("12345689a")
@@ -22,8 +22,8 @@ RSpec.describe User, type: :model do
     it "serializes brackets data" do
       user = User.create!(tax_brackets: @tax_brackets)
       brackets = [{:lowest_amount=>50000, :percentage=>0.3},
-                  {:lowest_amount=>10000, :percentage=>0.1},
                   {:lowest_amount=>20000, :percentage=>0.2},
+                  {:lowest_amount=>10000, :percentage=>0.1},
                   {:lowest_amount=>0, :percentage=>0.0}]
       # kinda redundant but why not?
       expect(user.tax_brackets).to be_instance_of(Array)

@@ -5,7 +5,8 @@ describe "TaxableIncome" do
     describe 'basic functionality' do
       before :each do
         csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/basic_functionality_test.csv"
-        @taxable_income = TaxableIncome.new(csv_path)
+        brackets = CSVParser.execute(csv_path)
+        @taxable_income = TaxableIncome.new(brackets)
       end
 
       describe '#calculate_total_amount' do
@@ -31,7 +32,8 @@ describe "TaxableIncome" do
 
         it "can handle weird zeros" do
           csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/weird_zeros_test.csv"
-          taxable_income = TaxableIncome.new(csv_path)
+          brackets = CSVParser.execute(csv_path)
+          taxable_income = TaxableIncome.new(brackets)
           expect(taxable_income.calculate_total_amount(5000)).to eq(0.0)
           expect(taxable_income.calculate_total_amount(15000)).to eq(500.00)
           expect(taxable_income.calculate_total_amount(25000)).to eq(1000.00)
@@ -42,7 +44,8 @@ describe "TaxableIncome" do
 
         it 'can handle out of order arrays' do
           csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/out_of_order_test.csv"
-          taxable_income = TaxableIncome.new(csv_path)
+          brackets = CSVParser.execute(csv_path)
+          taxable_income = TaxableIncome.new(brackets)
           expect(taxable_income.calculate_total_amount(10001)).to eq(0.10)
           expect(taxable_income.calculate_total_amount(15000)).to eq(500.00)
           expect(taxable_income.calculate_total_amount(20000)).to eq(1000.00)
@@ -56,7 +59,8 @@ describe "TaxableIncome" do
     describe 'can handle extended range' do
       it 'test_50k_to_100k' do
         csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/extended_range_test.csv"
-        taxable_income = TaxableIncome.new(csv_path)
+        brackets = CSVParser.execute(csv_path)
+        taxable_income = TaxableIncome.new(brackets)
         expect(22005.00).to eq(taxable_income.calculate_total_amount(100010))
       end
     end

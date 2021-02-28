@@ -1,5 +1,5 @@
-limit,percentage
+lowest_amount,percentage
 50000,0.3
-10000,0.1
 20000,0.2
+10000,0.1
 0,0.0

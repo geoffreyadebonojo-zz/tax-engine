@@ -2,39 +2,66 @@ require 'spec_helper'
 
 describe "TaxableIncomeController", type: :request do
   describe "GET" do
-    it "accepts positive numbers" do
-      get "/taxable_income", params: {amount: "11000"}
 
-      data = JSON.parse(response.body).symbolize_keys
-      expect(data[:tax_owed]).to eq(100)
-      expect(response.status).to eq(200)
+    describe "without assigned uuid" do
+
+      it "accepts positive numbers" do
+        get "/taxable_income", params: {amount: "11000"}
+
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:message]).to include("No valid uuid was given; default tax brackets are being used. To calculate tax information for your organization please create an account or enter a valid uuid.")
+        expect(response.status).to eq(400)
+      end
+
+      it "rejects zero" do
+        get "/taxable_income", params: {amount: "0"}
+
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:tax_owed]).to     be_nil
+        expect(data[:message]).to      eq("amount must be a number above 0")
+        expect(response.status).to     eq(422)
+      end
+
+      it "rejects negative numbers" do
+        get "/taxable_income", params: {amount: "-1"}
+
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:tax_owed]).to     be_nil
+        expect(data[:message]).to      eq("amount must be a number above 0")
+        expect(response.status).to     eq(422)
+      end
+
+      it "rejects words" do
+        get "/taxable_income", params: {amount: "ELEVENTY BILLION DOLLARS"}
+
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:tax_owed]).to     be_nil
+        expect(data[:message]).to      eq("amount must be a number above 0")
+        expect(response.status).to     eq(422)
+      end
     end
 
-    it "rejects zero" do
-      get "/taxable_income", params: {amount: "0"}
+    describe "with assigned uuid" do
+      it "accepts positive numbers" do
+        basic_brackets_csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/basic_functionality_test.csv"
+        basic_brackets = CSVParser.execute(basic_brackets_csv_path)
+        @basic_user = User.create!(tax_brackets: basic_brackets)
 
-      data = JSON.parse(response.body).symbolize_keys
-      expect(data[:tax_owed]).to     be_nil
-      expect(data[:message]).to      eq("amount must be a number above 0")
-      expect(response.status).to     eq(422)
+        alternate_brackets_csv_path = "#{Rails.root.to_s}/spec/csvs/brackets/alternate_brackets_test.csv"
+        alternate_brackets = CSVParser.execute(alternate_brackets_csv_path)
+        @alternate_user = User.create!(tax_brackets: alternate_brackets)
+
+        get "/taxable_income", params: {uuid: @basic_user.uuid, amount: "11000"}
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:tax_owed]).to eq(100)
+        expect(response.status).to eq(200)
+
+        get "/taxable_income", params: {uuid: @alternate_user.uuid, amount: "11000"}
+        data = JSON.parse(response.body).symbolize_keys
+        expect(data[:tax_owed]).to eq(10)
+        expect(response.status).to eq(200)
+      end
     end
 
-    it "rejects negative numbers" do
-      get "/taxable_income", params: {amount: "-1"}
-
-      data = JSON.parse(response.body).symbolize_keys
-      expect(data[:tax_owed]).to     be_nil
-      expect(data[:message]).to      eq("amount must be a number above 0")
-      expect(response.status).to     eq(422)
-    end
-
-    it "rejects words" do
-      get "/taxable_income", params: {amount: "ELEVENTY BILLION DOLLARS"}
-
-      data = JSON.parse(response.body).symbolize_keys
-      expect(data[:tax_owed]).to     be_nil
-      expect(data[:message]).to      eq("amount must be a number above 0")
-      expect(response.status).to     eq(422)
-    end
   end
 end

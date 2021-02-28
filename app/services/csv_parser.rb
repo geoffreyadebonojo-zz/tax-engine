@@ -6,7 +6,7 @@ module CSVParser
     csv = CSV.parse(csv_text, :headers => true)
     csv.map do |row|
       {
-        limit:       row["limit"].to_i,
+        lowest_amount:       row["lowest_amount"].to_i,
         percentage:  row["percentage"].to_f
       }
     end

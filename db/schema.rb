@@ -10,12 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_26_225918) do
+ActiveRecord::Schema.define(version: 2021_02_27_223014) do
 
-  create_table "tax_tiers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.integer "lower_limit"
-    t.integer "upper_limit"
-    t.integer "tax_percent"
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "uuid"
+    t.text "tax_brackets"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -102,5 +102,16 @@ describe "TaxBracketsController", type: :request do
       user = User.first
       expect(user.tax_brackets).to eq([{:lowest_amount=>29999, :percentage=>0.1}, {:lowest_amount=>10000, :percentage=>10}])
     end
+
+    it "resists duplication" do
+      user = User.create!(tax_brackets: [{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
+      post "/tax_bracket/update", params: {uuid: user.uuid, bracket_id: 0, lowest_amount: 20000, percentage: 10}
+
+      data = JSON.parse(response.body).symbolize_keys
+
+      user = User.first
+      expect(user.tax_brackets).to eq([{lowest_amount: 10000, percentage: 10}, {lowest_amount: 20000, percentage: 20}])
+      expect(data[:message]).to eq("Another tax bracket is already using 20000 as lowest limit. If you wish to update that bracket use the bracket_id.")
+    end
   end
 end

@@ -216,16 +216,16 @@ Requires an `amount`. Won't accept words, or any number below 1.
 
 # POINTS FOR DISCUSSION
 ##### Tax brackets as hashes in a column
-If we have multiple millions of users, each with 50+ tax brackets, it seemed more efficient to use a hash as a column, seeing as how there's only the lowest_amount and percentage in the hash. I am genuinely curious about this, actually, as a practice, regarding its actual speed/efficiency.
+If we have multiple millions of users, each with 50+ tax brackets, it seemed more efficient to use a hash as a column, seeing as how there's only the lowest_amount and percentage in the hash. I am genuinely curious about this, as a practice, regarding its actual speed/efficiency.
 
 ##### Using UUID instead of user namespace
-This feels a bit unusual. Were the api offering more, I would probably refactor some of the endpoints under /user.
+This feels a bit unusual. Were the api offering more, I would probably refactor some of the endpoints under `/user`.
 
 ##### Inclusion of CSVs
 I was thinking that whatever front-end makes use of this API could give users the option to upload a CSV with the tax brackets they intend to use. The CSV would be uploaded to an S3 bucket, which our API would then pull from to get the CSV data. Then we put that into our database. Just an added bit of flexibility.
 
 ##### Housekeeping and To Do list
 - With more time I'd like the create sessions.
-- Also the controllers are getting a little fat. The logic is getting slightly too involved.
+- Also the controllers are getting a little fat. The logic is getting slightly too involved. The TaxBracketController needs some cleanup and streamlining.
 - Kinda mixing concerns, using the csv parser to feed TaxableIncome object in tests. Left it in partly so I don't have to keep writing those arrays, partly just as a reminder that it can do that.
 - Fill out user model functionality with basic CRUD stuff and authentication. Right now it's set up like a public API where you request a key, and you get one. Should probably require an email address.

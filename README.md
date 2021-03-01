@@ -4,6 +4,7 @@
 ```
 git clone https://github.com/geoffreyadebonojo/tax-engine.git
 cd tax-engine
+bundle install
 rake db:{create,migrate,seed}
 ```
 #### Run tests

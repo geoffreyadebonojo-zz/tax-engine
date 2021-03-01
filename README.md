@@ -1,5 +1,10 @@
 # README
 
+```
+Ruby 2.7.1
+Rails 5.2.4
+```
+
 #### Setup
 ```
 git clone https://github.com/geoffreyadebonojo/tax-engine.git
@@ -17,6 +22,8 @@ open coverage/index.html
 ```
 
 ## ENDPOINTS
+Start your local server with `rails server` and check out the following endpoints.
+
 #### USERS
 ###### To create a new user with a random uuid
 

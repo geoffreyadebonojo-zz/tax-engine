@@ -34,7 +34,7 @@ class TaxableIncomeController < ApplicationController
   end
 
   def invalid_uuid
-    message = "No valid uuid was given; default tax brackets are being used. To calculate "\
+    message = "No valid uuid was given. To calculate "\
       "tax information for your organization please create an account or "\
       "enter a valid uuid."
     message += dev_message if !Rails.env.production?

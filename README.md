@@ -101,7 +101,7 @@ Start your local server with `rails server` and check out the following endpoint
 ```
 
 ##### To create a new tax bracket for a user
-Specify the `lowest_amount` and the `percentage`. New tax bracket displayed in response. You won't be able to create new brackets that have the same value as existing brackets. You won't be able to create a bracket with the same `lowest_amount` as one that already exists.
+Specify the `lowest_amount` and the `percentage`. The new tax bracket displayed in response. You won't be able to create a bracket with the same `lowest_amount` as one that already exists.
 
 `POST /tax_bracket/new?uuid=9b44abb039da2fec8bbb&lowest_amount=500&percentage=4`
 ```
@@ -142,7 +142,7 @@ Specify the `lowest_amount` and the `percentage`. New tax bracket displayed in r
 ```
 
 ##### To change an existing tax bracket
-Uses the index value of the tax bracket to update `lowest_amount` and tax `percentage`. Uses the index of the tax bracket. You can't have more than one bracket with the same `lowest_amount`, so if you try to update a bracket and the new `lowest_amount` already exists on another bracket, you'll get an error.
+Use the index value of the tax bracket to update `lowest_amount` and tax `percentage`. You can't have more than one bracket with the same `lowest_amount`, so if you try to update a bracket and the new `lowest_amount` already exists on another bracket, you'll get an error.
 
 `POST /tax_bracket/update?uuid=9b44abb039da2fec8bbb&lowest_amount=30000&percentage=40&bracket_id=0`
 ```
@@ -177,7 +177,7 @@ Uses the index value of the tax bracket to update `lowest_amount` and tax `perce
 ```
 
 ##### To delete an existing tax bracket
-Uses the index of the tax bracket.
+Uses the index of the tax bracket to delete an existing bracket.
 
 `DELETE /tax_bracket?bracket_id=0`
 ```
@@ -212,7 +212,7 @@ Uses the index of the tax bracket.
 
 #### TAX INCOME
 ##### Calculate taxable income based on tax brackets for a user based on income
-Requires an `amount`. Won't accept words, or any number below 1.
+Requires an `amount`, which is the income you want to calculate the tax on using the brackets for the user associated with that uuid. Won't accept words, or any number below 1.
 
 `GET /taxable_income?uuid=9b44abb039da2fec8bbb&amount=50000`
 ```
